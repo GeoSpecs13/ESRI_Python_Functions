@@ -1,6 +1,6 @@
 '''
 @Creator Andrew Sauerwin
-In this script is a list of functions that can be used to leverage automation tasks within ArcGIS Portal and even ArcGIS Online.
+In this file is a list of functions that can be used to leverage automation tasks within ArcGIS Portal and even ArcGIS Online.
 The idea is that this set of functions can be leveraged as imports for other scripts. Simply Place the library in the Python home folder.
 Then import from the library as needed.
 
@@ -14,6 +14,11 @@ from arcgis.gis import GIS
 from os import path
 from pandas import DataFrame
 
+#Global Variables for functions
+portalUrl = ""
+portalUser = ""
+portalPass = ""
+gis = GIS(portalUrl, portalUser, portalPass)
 
 def portalUserReport(url, portalUser,portalPass, csvLog):
     '''
@@ -187,3 +192,129 @@ def portalUserReport(url, portalUser,portalPass, csvLog):
 
     return 0
 
+# Variable examples for add_Users
+userDoc = r''
+group_query = "<insert portal gorup name>"
+
+def add_Users(userDoc, group_query):
+    '''This function was designed to add users from a CSV via usernames to ArcGIS Portal.
+    Usernames may differ via Active Directory accounts which need an @DOMAIN (whatever your domain is)
+    Anyone seeking to use this function should first import the appropriate python modules. 
+    
+    Those are:
+    1. csv (will need to use: import csv)
+    2. arcgis (will need to use: from arcgis.gis import GIS)
+    3. os (will use import os)
+    
+    **Parameters required for this function are:
+    1. userDoc which is a variable pointing at a CSV document with a list of usernames in it.
+    2. group_query = a variable passes to represent the Portal Groups to be used to add users.
+    
+    **IMPORTANT: Before using this function, the portal environment being used needs to be invoked.
+    '''
+    #Setting Count to iterate the number of users added
+    count = 0
+    #List used to stage users from CSV.
+    username = []
+    
+    #Reads the CSV file containing the User names, it is assumed that the csv is only using one row with values in it.
+    with open(userDoc, newline='') as csvfile:
+         users_csv = csv.reader(csvfile)
+         #loop through and append users from CSV to list
+         for row in users_csv:
+             username.append(row)
+
+    # count is set to iterate in the loop
+    count = count + 1
+    
+    print("Getting Portal Group, by setting the query.")
+    portal_groups = gis.groups.search(group_query)
+
+    print("Searching groups based on the query.")
+    for group in portal_groups:
+        print('Group name: ' + str(group.title))
+        print('List of group members: ' + str(group.get_members()) + "\n")
+        
+        for user in username:
+            print('\tAdding {0} to group, number of users added so far {1}.'.format(group.add_users(user), count))
+
+    print("Process complete...")
+    
+    return 0
+
+
+#Variable examples for portal_Flex
+role = 'role:"<Insert user>"' #is the typs of user you want to query by. EX: 'role:"org_user"'
+max_user_count = #assign number value
+doc = r""
+level_change = '' #Assign role level numberic value
+
+def portal_Flex(role, max_user_count, doc, level_change):
+    '''This function has been developed to be flexible. A developer should be able to point to any
+    administrative operation in the User class of the arcgis.gis module. 
+    See the API reference documentation for more information.
+    
+    Python Modules:
+    1. csv (will need to use: import csv)
+    2. arcgis (will need to use: from arcgis.gis import GIS)
+    3. os (will use import os)
+    
+    ***Parameters:
+    1. role is the assignment you want to search on for the groups of users you are interested in. 
+        See variable example for reference.
+    2. max_user_count is set to the number of users you want to identify as the maximum. This could be 
+    everyone in the organizations portal environment.
+    3. doc is set to the csv or excel spreadsheet containing the information of interest. User IDs in this case.
+    these contents will also be appended to a list in the script to be worked on later in the code.
+    4. level_change is set to identify the users license level in Portal. As of right now, this can either be
+        a '1' or '2'.
+    
+    **IMPORTANT: Before using this function, the portal environment being used needs to be invoked.    
+    '''
+    
+    # Setting the environment to search for user acocunts in the portal environment    
+    print("Object set for searching on User Accounts.")        
+    accounts = gis.users.search(query=role, max_users=max_user_count)
+
+    #Count variable
+    count = 0
+
+    # Lists
+    update_List = []
+
+    #Reads the CSV file containing the User names, it is assumed that the csv is only using one row with values in it.
+    with open(doc, newline='') as csvfile:
+         users_csv = csv.reader(csvfile)
+         #loop through and append users from CSV to list
+         for row in users_csv:
+             update_List.append(row)
+
+    # Looping through each user account
+    for account in accounts:
+        # Query Portal for specific user accounts
+        user = gis.users.get("{}".format(account.username))
+
+        # Disregard any generic named accounts
+        if account.username.startswith("esri"): 
+            print("Passing this user: {0}".format(user.username))
+        elif account.username.startswith("system_"):
+            print("Passing this user: {0}".format(user.username))
+        elif account.username.endswith("_boundaries"):
+            print("Passing this user: {0}".format(user.username))
+        elif account.username.endswith("_livingatlas"):
+            print("Passing this user: {0}".format(user.username))
+        elif account.username.endswith("_nav"):
+            print("Passing this user: {0}".format(user.username))
+        else:
+            print(user.fullName)
+            print(user.username)
+
+            for item in update_List:
+                if item == user.username:
+                    count = count + 1
+                    user.update_level(level_change)
+                    print("UserLever changed for {0} as it matched {1} values updated so far = {2}".format(user.username, item, count))
+
+    print("Process complete...")
+    
+    return 0
