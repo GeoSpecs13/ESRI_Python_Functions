@@ -16,7 +16,7 @@ def update_Values(inputs):
    
 	for i in inputs:
 		print("Workspace set to: {0}".format(i))
-		workspace = arcpy.env.workspace = region
+		workspace = arcpy.env.workspace = inputs
 
 		# Start an edit session. Must provide the workspace.
 		edit = arcpy.da.Editor(workspace)
