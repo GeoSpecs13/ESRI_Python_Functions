@@ -11,8 +11,9 @@ import arcpy, os
 from arcpy import env
 
 def update_Values(inputs):
-'''This function reads the record of an geodatabase then changes the record of the field(s)
- to a value of your choose.'''
+'''This function reads the record of feature class in geodatabase then changes the record of the field(s)
+ to a value of your choose. Valid work space environments will include standalone feature classed in a geodatabase,
+ not those inside of datasets, though the code could easily be updated to find them.'''
    
 	for i in inputs:
 		print("Workspace set to: {0}".format(i))
@@ -44,9 +45,10 @@ def update_Values(inputs):
 				with arcpy.da.UpdateCursor(fc, ["<Field of your choice>"]) as update_cursor:
 					for a_row in update_cursor:
 						# Update record with value below
-						a_row[0] = str('<Value based on vield type, in this instance this was a Text Field>')
+						a_row[0] = str('<Value based on field type, in this instance this was a Text Field>')
 						# Records get updated here
 						update_cursor.updateRow(a_row)
+				# This is not necessairly needed, but can be used to validate changed if ran against the same table.
 				with arcpy.da.SearchCursor(fc, ["<Field of your choice>"]) as search_cursor:
 					for s_row in search_cursor:
 						print("\tChanged Record: {0}".format(s_row))
@@ -66,5 +68,6 @@ def update_Values(inputs):
 # Variable for setting the database
 var_X = r""
 
-# List to pass into the function can take one or more.
+# List to pass into the function can take one or more values. In more than one workspace needs updated,
+# add another variable to have the function work on.
 inputs = [""]
