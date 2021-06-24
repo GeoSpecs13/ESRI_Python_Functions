@@ -20,7 +20,7 @@ portalUser = ""
 portalPass = ""
 gis = GIS(portalUrl, portalUser, portalPass)
 
-def portalUserReport(url, portalUser,portalPass, csvLog):
+def portalUserReport(portalUrl, portalUser,portalPass, csvLog):
     '''
     Generates a log of detailed information about a Portal User's details. 
     The primary use was to obtain the user's last login details to see when/or if a user has accessed a portal environment. 
@@ -313,7 +313,7 @@ def portal_Flex(role, max_user_count, doc, level_change):
                 if item == user.username:
                     count = count + 1
                     user.update_level(level_change)
-                    print("UserLever changed for {0} as it matched {1} values updated so far = {2}".format(user.username, item, count))
+                    print("UserLever changed for {0} as it matched {1}. Total values updated so far = {2}".format(user.username, item, count))
 
     print("Process complete...")
     
