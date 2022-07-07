@@ -68,6 +68,6 @@ def update_Values(inputs):
 # Variable for setting the database
 var_X = r""
 
-# List to pass into the function can take one or more values. In more than one workspace needs updated,
+# List to pass into the function can take one or more values. If more than one workspace needs updated,
 # add another variable to have the function work on.
 inputs = [""]
