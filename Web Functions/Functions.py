@@ -313,7 +313,7 @@ def portal_Flex(role, max_user_count, doc, level_change):
                 if item == user.username:
                     count = count + 1
                     user.update_level(level_change)
-                    print("UserLever changed for {0} as it matched {1}. Total values updated so far = {2}".format(user.username, item, count))
+                    print("UserLevel changed for {0} as it matched {1}. Total values updated so far = {2}".format(user.username, item, count))
 
     print("Process complete...")
     
